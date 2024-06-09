@@ -17,14 +17,16 @@ const registerUser = asyncHandler(async (req, res) => {
     if (!username || !email || !fullname || !password) {
         throw new ApiError(400, "All fields is required");
     }
-    const alreadyRegister = User.find({
+    const alreadyRegister = await User.findOne({
         $or: [{ email }, { username }]
     });
     if (alreadyRegister) {
         throw new ApiError(409, "User already registered")
     }
     const avatarLocalpath = req.files?.avatar[0]?.path;
-    const coverimgLocalpath = req.files?.coverimage[0]?.path;
+    console.log("avatart",avatarLocalpath)
+    const coverimgLocalpath = req.files?.coverImage[0]?.path;
+    console.log("cover image",coverimgLocalpath)
     if (!avatarLocalpath) {
         throw new ApiError(400, "Avatar file is required")
     }
@@ -34,22 +36,22 @@ const registerUser = asyncHandler(async (req, res) => {
     if (!avatar) {
         throw new ApiError(400, "Avatar file is required")
     }
-
     const user = await User.create({
         fullname,
         avatar: avatar.url,
         coverImage: coverImage?.url || '',
         email,
         password,
-        username: username.toLowercase()
+        username: username
     })
-    const createdUser = user.finById(user._id).select("-password -refreshToken")
-    if (!createdUser) {
+    //const createdUser = await user.findById(user._id).select("-password -refreshToken")
+    if (!user) {
         throw new ApiError(500, "Something went wrong while register user")
     };
 
+    console.log("user resiterred", user )
     return res.status(201).json(
-        new APIResponse(200, createdUser, "User Registered Successfully")
+        new APIResponse(200, user, "User Registered Successfully")
     )
 })
 
