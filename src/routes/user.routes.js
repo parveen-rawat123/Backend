@@ -17,7 +17,7 @@ router.route("/register").post(
     ]),
     registerUser)
     
-router.route("/logIn").get(LoginUser)
+router.route("/logIn").post(LoginUser)
 
 router.route("/logout").post(
      verifyJWT, 
