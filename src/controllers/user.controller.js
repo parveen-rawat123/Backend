@@ -143,17 +143,25 @@ const LoginUser = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
-    const logoutuser = User.findByIdAndUpdate(
-        req.user._id,
-        {
-            $set: {
-                refreshToken: undefined,
-            },
+    const { refreshToken } = req.user;
+    if (!refreshToken) {
+       throw new ApiError(401, "user not login")
+    };
+    
+    const data = await User.findByIdAndUpdate(
+      // @ts-expect-error
+      req.user._id,
+      {
+        $unset: {
+          refreshToken: 1,
         },
-        {
-            new: true,
-        }
+      },
+      {
+        new: true,
+      }
     );
+
+  
     const option = {
         httpOnly: true,
         secure: true,
@@ -161,7 +169,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     return res.status(200)
         .clearCookie("AccessToken", option)
         .clearCookie("RefreshToken", option)
-        .json(new APIResponse(200, "user loggedOut Successfull", logoutuser))
+        .json(new APIResponse(200, "user loggedOut Successfull"))
 });
 
 export { registerUser, LoginUser, logoutUser };
