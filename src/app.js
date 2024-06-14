@@ -15,7 +15,7 @@ app.use(express.json({
 // express can used url req, extended : for handle nested object 
 app.use(express.urlencoded({
     extended: true,
-   // limit: "16kb"
+    limit: "16kb"
 }));
 
 // for  access public folders

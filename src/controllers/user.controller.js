@@ -151,7 +151,6 @@ const logoutUser = asyncHandler(async (req, res) => {
     };
 
     const data = await User.findByIdAndUpdate(
-        // @ts-expect-error
         req.user._id,
         {
             $unset: {
@@ -174,10 +173,14 @@ const logoutUser = asyncHandler(async (req, res) => {
         .json(new APIResponse(200, "user loggedOut Successfull"))
 });
 
+
 const refreshAccessToken = asyncHandler(async (req, res) => {
+    console.log(req.body.RefreshToken)
+    console.log(req.cookie?.RefreshToken)
 
-    const incomeingRefreshToken = req.cookie.refreshToken || req.body.refreshToken;
+    const incomeingRefreshToken = req.cookie?.RefreshToken || req.body.RefreshToken;
 
+    console.log(incomeingRefreshToken)
     if (!incomeingRefreshToken) {
         throw new ApiError(400, "user unauthrized")
     }
@@ -217,4 +220,23 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 })
 
+const changecurrentPassword = asyncHandler(async (req, res) => {
+    const { newPassword, oldPassword } = req.body;
+
+    const user = await User.findById(req.user?._id)
+
+    const oldpasswprduserMatched = await user.isPasswordMatched(oldPassword);
+    if (!oldpasswprduserMatched) {
+        throw new ApiError(400, "passwrord does not matched")
+    };
+    user.password = newPassword;
+    await user.save({ validBeforeSave: false })
+
+    return res.status(200)
+        .json(
+            new APIResponse(201, "password changed Successfilly")
+        );
+});
+
 export { registerUser, LoginUser, logoutUser, refreshAccessToken };
+ 

@@ -23,6 +23,6 @@ router.route("/logout").post(
      verifyJWT, 
     logoutUser)
 
-router.route("/refresh-Token").post(refreshAccessToken)
+router.route("/refreshToken").post(refreshAccessToken)
 
 export default router;
